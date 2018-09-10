@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">CriminalIntent</string>
+
+    <string name="crime_title_label">죄명</string>
+    <string name="crime_title_hint">죄명을 입력해주세요</string>
+    <string name="crime_details_label">상세 내역</string>
+    <string name="crime_solved_label">해결됨</string>
+
+    <string name="date_picker_title">범죄 발생일자:</string>
+    <string name="time_picker_title">범죄 발생일시:</string>
+
+    <string name="new_crime">새로운 범죄</string>
+    <string name="show_subtitle_crime_count">범죄건수 보기</string>
+    <string name="hide_subtitle_crime_count">범죄건수 감추기</string>
+    <string name="subtitle_format">%1$d 건</string>
+
+    <string name="simple_dialog_title_delete">정말 삭제하시겠습니까?</string>
+</resources>
