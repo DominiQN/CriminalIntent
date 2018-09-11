@@ -1,5 +1,6 @@
 package com.example.dominiqn.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,14 +19,19 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
+import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+    private static final int REQUEST_DELETE_CRIME = 2;
 
     private static int mItemPosition = -1; // 이거 이 위치가 적절하진 않은 것 같은데 어디가 좋을까?
     private RecyclerView mCrimeRecyclerView;
+    private TextView mEmptyTextView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
 
@@ -34,10 +40,26 @@ public class CrimeListFragment extends Fragment {
     public CrimeListFragment() {}
 
 
+    private void createNewCrime() {
+        Crime crime = new Crime();
+        crime.setTitle("");
+        CrimeLab.get(getActivity()).addCrime(crime);
+        Intent i = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+        startActivity(i);
+    }
 
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
+
+        if (crimes.size() == 0) {
+            mCrimeRecyclerView.setVisibility(View.GONE);
+            mEmptyTextView.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        mCrimeRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
 
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
@@ -50,6 +72,23 @@ public class CrimeListFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();
             }
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_DELETE_CRIME) {
+            UUID crimeId = (UUID) data.getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
+            CrimeLab crimeLab = CrimeLab.get(getActivity());
+            crimeLab.deleteCrime(
+                    crimeLab.getCrime(crimeId));
+            updateUI();
+            updateSubtitle();
+        }
+
+
     }
 
     @Override
@@ -78,6 +117,14 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        mEmptyTextView = (TextView) view.findViewById(R.id.crime_empty_view);
+        mEmptyTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewCrime();
+            }
+        });
+
         if (savedInstanceState != null) {
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
@@ -91,11 +138,7 @@ public class CrimeListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_list_new_crime:
-                Crime crime = new Crime();
-                crime.setTitle("");
-                CrimeLab.get(getActivity()).addCrime(crime);
-                Intent i = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-                startActivity(i);
+                createNewCrime();
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -167,11 +210,13 @@ public class CrimeListFragment extends Fragment {
             mSolvedCheckBox.setChecked(crime.isSolved());
         }
 
+
+
         @Override
         public void onClick(View v) {
             Intent i = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             getAdapterPosition();
-            startActivity(i);
+            startActivityForResult(i, REQUEST_DELETE_CRIME);
         }
     }
 

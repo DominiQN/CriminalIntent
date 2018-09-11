@@ -21,6 +21,7 @@ public class CrimeLab {
     private SQLiteDatabase mDatabase;
 
 
+    // 싱클톤은 애플리케이션 전체 프로세스가 소멸되지 않는 한, 한 번 생성되면 소멸되지 않는다.
     private CrimeLab(Context context) {
         mContext = context.getApplicationContext();
         mDatabase = new CrimeBaseHelper(mContext)
@@ -40,6 +41,7 @@ public class CrimeLab {
         values.put(CrimeTable.Cols.TITLE, crime.getTitle());
         values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
         values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+        values.put(CrimeTable.Cols.SUSPECT, crime.getSuspect());
 
         return values;
     }
@@ -49,6 +51,13 @@ public class CrimeLab {
         mDatabase.insert(CrimeTable.NAME, null, values);
     }
 
+    public void deleteCrime(Crime crime) {
+        String uuidString = crime.getId().toString();
+        mDatabase.delete(CrimeTable.NAME,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { uuidString }
+                );
+    }
 
     public Crime getCrime(UUID id) {
         CrimeCursorWrapper cursor = queryCrimes(

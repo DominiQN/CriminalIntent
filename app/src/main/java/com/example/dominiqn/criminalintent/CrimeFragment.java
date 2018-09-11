@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
+    public static final String EXTRA_CRIME_ID =
+            "com.example.dominiqn.criminalintent.crime_id";
 
     private static final String TAG = "CrimeFragment";
     private static final String ARG_CRIME_ID = "crime_id";
@@ -55,6 +57,10 @@ public class CrimeFragment extends Fragment {
         return crimeFragment;
     }
 
+    public void returnResult(Intent i) {
+        getActivity().setResult(Activity.RESULT_OK, i);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
@@ -69,7 +75,10 @@ public class CrimeFragment extends Fragment {
             mCrime.setDate(date);
             updateTime();
         } else if (requestCode == REQUEST_DELETE_CRIME) {
-
+            Intent i = new Intent();
+            i.putExtra(EXTRA_CRIME_ID, mCrime.getId());
+            returnResult(i);
+            getActivity().finish();
         }
     }
 

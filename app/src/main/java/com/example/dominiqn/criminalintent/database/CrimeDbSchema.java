@@ -8,6 +8,7 @@ package com.example.dominiqn.criminalintent.database;
                                              예를 들면, 새 열이 추가된 경우 현재 버전에 1을 더한 값을
                                              DB 버전으로 지정
 4. 만일 구 버전일 경우 새 버전으로 업그레이드 하는 코드 실행
+   (혹은 설치 후 삭제 해도 저장된 DB는 사라짐)
 
 그리고 이를 위해 SQLiteOpenHelper 클래스가 제공됨
  */
@@ -23,6 +24,7 @@ public class CrimeDbSchema {
             public static final String TITLE = "title";
             public static final String DATE = "date";
             public static final String SOLVED = "solved";
+            public static final String SUSPECT = "suspect";
         }
     }
 }
